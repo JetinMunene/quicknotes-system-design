@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="QuickNotes API client for managing notes.">
+    <title>QuickNotes | API Client</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="api.js" defer></script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1>QuickNotes</h1>
+            <p>Capture your ideas. Keep them organized.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="notes-section" aria-labelledby="notes-heading">
+            <div class="section-heading">
+                <div>
+                    <h2 id="notes-heading">Your Notes</h2>
+                    <p>Load notes from the practice API.</p>
+                </div>
+
+                <button type="button" id="load-btn">
+                    Load notes
+                </button>
+            </div>
+
+            <p id="status" class="status" role="status" aria-live="polite">
+                Click "Load notes" to retrieve notes from the server.
+            </p>
+
+            <ul id="notes-list" aria-label="Notes list"></ul>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 QuickNotes. Built as an API client project.</p>
+        </div>
+    </footer>
+</body>
+</html>
