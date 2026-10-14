@@ -35,7 +35,7 @@ function showEmptyState() {
     notesList.appendChild(item);
 }
 
-// Create and display a note safely.
+// Create a note element safely.
 function createNoteElement(note) {
     const item = document.createElement("li");
     item.className = "note-card";
@@ -46,7 +46,17 @@ function createNoteElement(note) {
     const body = document.createElement("p");
     body.textContent = note.body || "No note content available.";
 
-    item.append(title, body);
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "delete-btn";
+    deleteButton.textContent = "Delete";
+    deleteButton.dataset.id = note.id;
+
+    deleteButton.addEventListener("click", () => {
+        deleteNote(note.id, item, deleteButton);
+    });
+
+    item.append(title, body, deleteButton);
 
     return item;
 }
@@ -168,6 +178,50 @@ async function createNote(event) {
         );
     } finally {
         submitButton.disabled = false;
+    }
+}
+
+// DELETE: Remove a note from JSONPlaceholder and the page.
+async function deleteNote(noteId, noteElement, deleteButton) {
+    deleteButton.disabled = true;
+    deleteButton.textContent = "Deleting...";
+
+    showStatus(`Deleting note ${noteId}...`, "loading");
+
+    try {
+        const response = await request(`${API_URL}/${noteId}`, {
+            method: "DELETE"
+        });
+
+        /*
+         * JSONPlaceholder simulates DELETE requests but does not permanently
+         * remove data from its database. We therefore remove the note from
+         * the current page after receiving a successful response.
+         */
+
+        if (response.ok) {
+            noteElement.remove();
+
+            if (notesList.children.length === 0) {
+                showEmptyState();
+                showStatus("Note deleted successfully.", "success");
+            } else {
+                showStatus(
+                    `Note ${noteId} deleted successfully (status ${response.status}).`,
+                    "success"
+                );
+            }
+        }
+    } catch (error) {
+        console.error("Unable to delete note:", error);
+
+        deleteButton.disabled = false;
+        deleteButton.textContent = "Delete";
+
+        showStatus(
+            "Sorry, we couldn't delete the note. Please try again.",
+            "error"
+        );
     }
 }
 
