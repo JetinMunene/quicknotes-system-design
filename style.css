@@ -145,6 +145,57 @@ button:disabled {
     border: 1px dashed #cbd5e1;
     border-radius: 8px;
 }
+.create-section {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgb(15 23 42 / 8%);
+    margin-bottom: 24px;
+}
+
+.create-section h2 {
+    margin-bottom: 20px;
+}
+
+#note-form {
+    display: grid;
+    gap: 18px;
+}
+
+.form-group {
+    display: grid;
+    gap: 7px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #334155;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font: inherit;
+    color: #1e293b;
+    background: white;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: 2px solid #818cf8;
+    border-color: #4f46e5;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-group small {
+    color: #64748b;
+}
 
 .site-footer {
     padding: 20px 0;
@@ -167,3 +218,4 @@ button:disabled {
         width: 100%;
     }
 }
+

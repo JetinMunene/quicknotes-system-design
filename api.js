@@ -1,11 +1,14 @@
-
 const API_URL = "https://jsonplaceholder.typicode.com/posts";
 
 const loadButton = document.getElementById("load-btn");
+const submitButton = document.getElementById("submit-btn");
+const noteForm = document.getElementById("note-form");
+const titleInput = document.getElementById("title-input");
+const bodyInput = document.getElementById("body-input");
 const statusElement = document.getElementById("status");
 const notesList = document.getElementById("notes-list");
 
-// Make API requests reusable and report unsuccessful HTTP responses.
+// Reusable API request function.
 async function request(url, options = {}) {
     const response = await fetch(url, options);
 
@@ -16,21 +19,39 @@ async function request(url, options = {}) {
     return response;
 }
 
-// Display a status message and its appropriate visual style.
+// Display status messages.
 function showStatus(message, type = "info") {
     statusElement.textContent = message;
     statusElement.className = `status ${type}`;
 }
 
-// Display a friendly empty state when there are no notes.
+// Display an empty state.
 function showEmptyState() {
     const item = document.createElement("li");
+
     item.className = "empty-state";
     item.textContent = "No notes found. There are no notes to display.";
+
     notesList.appendChild(item);
 }
 
-// Safely display notes using textContent instead of innerHTML.
+// Create and display a note safely.
+function createNoteElement(note) {
+    const item = document.createElement("li");
+    item.className = "note-card";
+
+    const title = document.createElement("h3");
+    title.textContent = note.title || "Untitled note";
+
+    const body = document.createElement("p");
+    body.textContent = note.body || "No note content available.";
+
+    item.append(title, body);
+
+    return item;
+}
+
+// Display multiple notes.
 function renderNotes(notes) {
     notesList.replaceChildren();
 
@@ -40,23 +61,14 @@ function renderNotes(notes) {
     }
 
     notes.forEach((note) => {
-        const item = document.createElement("li");
-        item.className = "note-card";
-
-        const title = document.createElement("h3");
-        title.textContent = note.title || "Untitled note";
-
-        const body = document.createElement("p");
-        body.textContent = note.body || "No note content available.";
-
-        item.append(title, body);
-        notesList.appendChild(item);
+        notesList.appendChild(createNoteElement(note));
     });
 }
 
-// GET: Load the first 10 notes from JSONPlaceholder.
+// GET: Load the first 10 notes.
 async function loadNotes() {
     loadButton.disabled = true;
+
     showStatus("Loading notes...", "loading");
 
     try {
@@ -77,6 +89,7 @@ async function loadNotes() {
         console.error("Unable to load notes:", error);
 
         notesList.replaceChildren();
+
         showStatus(
             "Sorry, we couldn't load notes. Check your internet connection and try again.",
             "error"
@@ -86,4 +99,77 @@ async function loadNotes() {
     }
 }
 
+// POST: Create a new note.
+async function createNote(event) {
+    event.preventDefault();
+
+    const title = titleInput.value.trim();
+    const body = bodyInput.value.trim();
+
+    // Validate title.
+    if (!title) {
+        showStatus("Please enter a note title.", "error");
+        titleInput.focus();
+        return;
+    }
+
+    if (title.length > 100) {
+        showStatus(
+            "The title must be 100 characters or fewer.",
+            "error"
+        );
+        titleInput.focus();
+        return;
+    }
+
+    submitButton.disabled = true;
+
+    showStatus("Creating note...", "loading");
+
+    try {
+        const response = await request(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title: title,
+                body: body,
+                userId: 1
+            })
+        });
+
+        const createdNote = await response.json();
+
+        // Add the newly created note to the top of the list.
+        const noteElement = createNoteElement(createdNote);
+
+        // Remove the empty-state message if one is currently displayed.
+        const emptyState = notesList.querySelector(".empty-state");
+
+        if (emptyState) {
+            notesList.replaceChildren();
+        }
+
+        notesList.prepend(noteElement);
+
+        showStatus(
+            `Note created (status ${response.status}, id ${createdNote.id}).`,
+            "success"
+        );
+
+        noteForm.reset();
+    } catch (error) {
+        console.error("Unable to create note:", error);
+
+        showStatus(
+            "Sorry, we couldn't create the note. Please try again.",
+            "error"
+        );
+    } finally {
+        submitButton.disabled = false;
+    }
+}
+
 loadButton.addEventListener("click", loadNotes);
+noteForm.addEventListener("submit", createNote);
